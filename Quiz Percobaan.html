@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interaktif : Ikuti Zamanmu, Jangan Lupakan Budayamu.</title>
+    
+    <style>
+        /* Desain Responsif dan Menarik */
+        :root {
+            --primary-color: #007bff; /* Biru Primer (untuk fokus) */
+            --button-color: #ADD8E6; /* Biru Muda untuk Pilihan */
+            --bg-color: #f4f7f6; /* Latar belakang terang */
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .quiz-container {
+            max-width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+        
+        /* Judul */
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.5em; /* Lebih kecil untuk ponsel */
+        }
+        
+        /* Gambar Soekarno */
+        .header-image {
+            display: block;
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            margin: 0px auto 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pertanyaan */
+        .question-box {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #212529;
+        }
+
+        /* Opsi Jawaban */
+        .option button {
+            background-color: var(--button-color); /* Biru Muda */
+            color: var(--text-color);
+            border: none;
+            padding: 12px 15px;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .option button:hover:not(:disabled) {
+            background-color: #90d3e5; /* Sedikit lebih gelap saat di-hover */
+            transform: translateY(-1px);
+        }
+
+        .option button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6; 
+        }
+
+        /* Feedback dan Tombol Lanjut */
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #next-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #next-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Responsif untuk layar besar */
+        @media (min-width: 768px) {
+            .quiz-container {
+                max-width: 700px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <h1>Quiz Interaktif: Ikuti Zamanmu, Jangan Lupakan Budayamu.</h1>
+        
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Soekarno-Hatta.jpg/300px-Soekarno-Hatta.jpg" alt="Bapak Proklamator Soekarno" class="header-image">
+        
+        <div class="question-box">
+            <span id="question-number"></span>
+            <div id="question-text" class="question">Memuat pertanyaan...</div>
+        </div>
+        
+        <div id="options-container">
+            </div>
+        
+        <div id="result"></div>
+        
+        <button id="next-button" style="display:none;">Pertanyaan Berikutnya >></button>
+    </div>
+
+    <script>
+        // Bank Soal Lengkap (20 Soal Tema Langkat)
+        const fullQuestionBank = [
+            { q: "Nama museum yang menyimpan benda-benda bersejarah peninggalan Kesultanan Langkat adalah...", a: "Museum Daerah Kabupaten Langkat", options: ["Museum Pahlawan Nasional Langkat", "Museum Stabat", "Museum Balai Kerapatan"] },
+            { q: "Siapakah tokoh Pahlawan Nasional dari Langkat yang dikenal sebagai penyair dan budayawan?", a: "Tengku Amir Hamzah", options: ["Teuku Umar", "Sisingamangaraja XII", "Sultan Mahmud Al Rasyid"] },
+            { q: "Ibukota Kabupaten Langkat adalah kota...", a: "Stabat", options: ["Tanjung Pura", "Brandan", "Pangkalan Susu"] },
+            { q: "Kapan tanggal berdirinya Kesultanan Langkat?", a: "Tidak Diketahui Secara Pasti, Namun Diperkirakan Abad ke-17", options: ["17 Mei 1898", "25 Januari 1900", "15 Agustus 1600"] },
+            { q: "Istana Kesultanan Langkat yang bersejarah berlokasi di...", a: "Tanjung Pura", options: ["Stabat", "Pangkalan Brandan", "Kuala"] },
+            { q: "Komoditas utama Kesultanan Langkat di masa lalu yang sangat berharga adalah...", a: "Minyak Bumi dan Tembakau", options: ["Karet dan Sawit", "Kopi dan Teh", "Emas dan Perak"] },
+            { q: "Siapakah bupati Langkat yang meresmikan Museum Daerah Kabupaten Langkat?", a: "Samsul Arifin", options: ["Sutayo", "Ngogesa Sitepu", "Tun Abdul Razak"] },
+            { q: "Peninggalan Kesultanan Langkat yang masih berdiri dan menjadi ikon agama dan sejarah adalah...", a: "Masjid Azizi", options: ["Masjid Raya Medan", "Benteng Putri Hijau", "Balai Kerapatan"] },
+            { q: "Siapa Sultan Langkat terakhir yang berkuasa hingga masa kemerdekaan Indonesia?", a: "Sultan Mahmud Abdul Jalil Rahmad Shah II", options: ["Sultan Musa Ghaisuddin", "Sultan Abdul Aziz", "Sultan Sulaiman"] },
+            { q: "Peristiwa penting yang menandai berakhirnya kekuasaan Kesultanan Langkat adalah...", a: "Revolusi Sosial Sumatera Timur 1946", options: ["Perang Bubat", "Perang Dunia II", "Konferensi Meja Bundar"] },
+            { q: "Salah satu tokoh ulama besar yang berasal dari Langkat dan mendirikan Tarekat Naqsyabandiyah adalah...", a: "Syeikh Abdul Wahab Rokan", options: ["Tuanku Imam Bonjol", "KH Ahmad Dahlan", "Haji Samanhudi"] },
+            { q: "Bangunan bersejarah yang menjadi saksi bisu perkembangan industri minyak pertama di Indonesia adalah...", a: "Sumur Minyak Telaga Said", options: ["Dermaga Pangkalan Susu", "Stasiun Kereta Api Stabat", "Masjid Azizi"] },
+            { q: "Kabupaten Langkat merupakan bagian dari Provinsi...", a: "Sumatera Utara", options: ["Aceh", "Riau", "Sumatera Barat"] },
+            { q: "Sebelum berdirinya Kesultanan Langkat, wilayah ini merupakan bagian dari Kerajaan...", a: "Aru", options: ["Sriwijaya", "Majapahit", "Melayu Tua"] },
+            { q: "Hutan hujan tropis di Langkat yang terkenal dengan konservasi orangutan adalah...", a: "Taman Nasional Gunung Leuser (TNGL)", options: ["Taman Hutan Raya Bukit Barisan", "Hutan Lindung Sibolangit", "Suaka Margasatwa Barumun"] },
+            { q: "Tokoh yang dikenal sebagai pemrakarsa pendirian Masjidi Azizi adalah...", a: "Sultan Abdul Aziz Abdul Jalil Rahmad Shah", options: ["Pangeran Indera Bungsu", "Raja Ahmad", "Raja Kahar"] },
+            { q: "Sungai utama yang mengalir melintasi wilayah Langkat adalah Sungai...", a: "Sungai Wampu", options: ["Sungai Deli", "Sungai Asahan", "Sungai Sei Ular"] },
+            { q: "Salah satu warisan budaya tak benda Langkat yang berupa tarian yang ditetapkan tahun 2024 lalu adalah...", a: "Tari Dulang", options: ["Tari Saman", "Tari Tor-Tor", "Tari Piring"] },
+            { q: "Gedung peninggalan Belanda di Stabat yang kini menjadi Kantor Pemerintah adalah...", a: "Kantor Bupati Langkat Lama (eks-Kantor Asisten Residen)", options: ["Gedung Bank Indonesia", "Kantor Pos Lama", "Stasiun Kereta Api Stabat"] },
+            { q: "Perkampungan tradisional suku Karo yang masih bisa ditemukan di Langkat berada di wilayah...", a: "Dataran Tinggi Langkat (misalnya di sekitar Bahorok)", options: ["Pesisir Pantai Langkat", "Pinggiran Kota Stabat", "Daerah Pelabuhan Brandan"] }
+        ];
+
+        // --- Variabel Global Kuis ---
+        // BATASAN SOAL: 5 PERTANYAAN
+        const totalQuestionsToShow = 5; 
+        let selectedQuestions = [];
+        let currentQuestionIndex = 0;
+        let userScore = 0;
+        const passingScore = 60; // Nilai minimum kelulusan
+
+        // --- Fungsi Helper ---
+
+        // Fungsi untuk mengacak urutan elemen dalam array
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [
+                    array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // --- Fungsi Utama Kuis ---
+
+        function selectRandomQuestions() {
+            let shuffledBank = shuffle([...fullQuestionBank]);
+            // Ambil 5 soal pertama (sesuai totalQuestionsToShow)
+            selectedQuestions = shuffledBank.slice(0, totalQuestionsToShow);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= totalQuestionsToShow) {
+                showResults();
+                return;
+            }
+
+            const qData = selectedQuestions[currentQuestionIndex];
+            const qNum = currentQuestionIndex + 1;
+            
+            document.getElementById('question-number').innerText = `Pertanyaan ${qNum} dari ${totalQuestionsToShow}`;
+            document.getElementById('question-text').innerText = qData.q;
+
+            // Gabungkan dan acak pilihan
+            let allOptions = [qData.a, ...qData.options]; 
+            allOptions = shuffle(allOptions); 
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            // Buat tombol pilihan
+            allOptions.forEach(optionText => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('option');
+                const button = document.createElement('button');
+                button.innerText = optionText;
+                
+                // JAWABAN BENAR dikirim sebagai parameter
+                button.onclick = () => checkAnswer(button, qData.a); 
+                
+                optionDiv.appendChild(button);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('next-button').style.display = 'none';
+        }
+
+        // LOGIKA PERCOBAAN DIPERBAIKI: 1 KALI PILIH JAWABAN, LALU LANJUT
+        function checkAnswer(selectedButton, correctAnswer) {
+            const options = document.querySelectorAll('#options-container button');
+            const resultDiv = document.getElementById('result');
+            
+            // Nonaktifkan semua tombol setelah satu pilihan diklik
+            options.forEach(btn => btn.disabled = true); 
+
+            if (selectedButton.innerText === correctAnswer) {
+                userScore++;
+                resultDiv.innerHTML = "<span style='color: green;'>Jawaban Anda Benar! 🎉</span>";
+                selectedButton.style.backgroundColor = 'lightgreen';
+                selectedButton.style.color = 'black';
+            } else {
+                resultDiv.innerHTML = `<span style='color: red;'>Jawaban Anda Salah. Jawaban yang benar adalah: ${correctAnswer}</span>`;
+                selectedButton.style.backgroundColor = 'salmon';
+                selectedButton.style.color = 'black';
+
+                // Tandai jawaban yang benar (untuk edukasi)
+                options.forEach(btn => {
+                    if (btn.innerText === correctAnswer) {
+                        btn.style.backgroundColor = 'lightgreen';
+                        btn.style.color = 'black';
+                    }
+                });
+            }
+
+            // Tampilkan tombol untuk melanjutkan
+            document.getElementById('next-button').style.display = 'block';
+        }
+
+        function showResults() {
+            const quizContainer = document.querySelector('.quiz-container');
+            
+            // Hitung nilai akhir. (Skor Benar / 5) * 100
+            const finalScore = Math.round((userScore / totalQuestionsToShow) * 100);
+            
+            let resultMessage = "";
+            let socialMediaMessage = "";
+
+            if (finalScore >= passingScore) {
+                resultMessage = "<span style='color: green;'>Kamu memiliki pengetahuan yang baik soal Kabupaten Langkat!</span>";
+                socialMediaMessage = "<br><br> Jangan Lupa Ikuti Kami di Facebook, Tiktok dan Instagram. Salam Budaya!";
+            } else {
+                resultMessage = "<span style='color: red;'>Nilai Anda di bawah 60. Ayo belajar lagi tentang Langkat! Budaya kita adalah kekayaan kita.</span>";
+                socialMediaMessage = "";
+            }
+
+            quizContainer.innerHTML = `
+                <h2 style="color: var(--primary-color); text-align: center;">Kuis Selesai!</h2>
+                <p style="text-align: center; font-size: 1.2em;">Skor Akhir Anda: <b>${finalScore}</b></p>
+                <p style="text-align: center; font-weight: bold; font-style: italic;">${resultMessage}</p>
+                <p style="text-align: center; font-size: 0.9em;">${socialMediaMessage}</p>
+                <button onclick="window.location.reload()" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; display: block; width: 80%; margin: 20px auto;">Coba Kuis Lagi</button>
+            `;
+        }
+
+        // --- Inisialisasi Kuis ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Event Listener untuk tombol Berikutnya
+            document.getElementById('next-button').addEventListener('click', () => {
+                currentQuestionIndex++;
+                loadQuestion();
+            });
+
+            // Mulai kuis saat halaman dimuat
+            selectRandomQuestions();
+        });
+
+    </script>
+</body>
+</html>
